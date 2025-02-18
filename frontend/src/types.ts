@@ -7,5 +7,6 @@ export interface Task {
     task_number: string;
     topic: string;
     explanation: string | null;
+    task_url: string | null;
     created_at: string;
 }

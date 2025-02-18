@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, LargeBinary
 from sqlalchemy.orm import relationship
 from database.database import Base
 
@@ -17,5 +17,7 @@ class Task(Base):
     title = Column(String, index=True)
     description = Column(String)
     topic_id = Column(Integer, ForeignKey('topics.id'))
+    image_data = Column(LargeBinary, nullable=True)
+    image_type = Column(String(50), nullable=True)
 
     topic = relationship("Topic", back_populates="tasks")

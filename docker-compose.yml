@@ -12,6 +12,9 @@ services:
       - REACT_APP_API_URL=http://localhost:8000
     networks:
       - app-network
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
 
   backend:
     container_name: backend
@@ -34,6 +37,9 @@ services:
       timeout: 5s
       retries: 5
       start_period: 15s
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./backend:/app
 
   db:
     image: postgres:latest

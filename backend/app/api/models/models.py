@@ -20,6 +20,7 @@ class Task(Base):
     task_number = Column(String(50), nullable=False)
     topic = Column(String(255), nullable=False)
     explanation = Column(Text, nullable=True)
+    task_url = Column(String(500), nullable=True)
     created_at = Column(DateTime, default=datetime.now)
 
 class User(Base):

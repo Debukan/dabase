@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Heading, Text, Divider, VStack, Badge } from '@chakra-ui/react';
+import { Box, Heading, Text, Divider, VStack, Badge, Image } from '@chakra-ui/react';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Task } from '../types';
 
 const TaskPage: React.FC = () => {
@@ -53,8 +55,29 @@ const TaskPage: React.FC = () => {
 
                 <Box>
                     <Heading size="md" mb={4}>Решение:</Heading>
-                    <Text whiteSpace="pre-wrap">{task.description}</Text>
+                    <Box borderRadius="md" overflow="hidden">
+                        <SyntaxHighlighter
+                            language="python"
+                            style={vscDarkPlus}
+                            customStyle={{
+                                margin: 0,
+                                borderRadius: '0.375rem',
+                            }}
+                        >
+                            {task.description}
+                        </SyntaxHighlighter>
+                    </Box>
                 </Box>
+
+                {task.image_data && task.image_type && (
+                    <Box>
+                        <Image
+                            src={`data:${task.image_type};base64,${task.image_data}`}
+                            alt="Task image"
+                            maxW="100%"
+                        />
+                    </Box>
+                )}
 
                 {task.explanation && task.explanation.trim() !== '' && (
                     <>
@@ -70,6 +93,11 @@ const TaskPage: React.FC = () => {
                     <Text color="gray.500" fontSize="sm">
                         Источник: {task.source}, Номер задания: {task.task_number}
                     </Text>
+                    {task.task_url && (
+                        <Text color="blue.500" fontSize="sm" as="a" href={task.task_url} target="_blank">
+                            Ссылка на оригинал задания
+                        </Text>
+                    )}
                     <Text color="gray.500" fontSize="sm">
                         Добавлено: {new Date(task.created_at).toLocaleDateString()}
                     </Text>

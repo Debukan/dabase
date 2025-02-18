@@ -26,6 +26,9 @@ const Header: React.FC = () => {
         </Heading>
         
         <HStack spacing={4}>
+          <Button as={RouterLink} to="/search" colorScheme="teal" variant="ghost">
+            Поиск
+          </Button>
           <Button as={RouterLink} to="/tasks/kompege" colorScheme="teal" variant="ghost">
             КЕГЭ
           </Button>
