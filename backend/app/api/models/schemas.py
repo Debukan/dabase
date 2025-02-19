@@ -42,6 +42,7 @@ class TaskBase(BaseModel):
     source: str
     task_number: str
     topic: str
+    solution: str
     task_url: Optional[str] = None
 
 class TaskCreate(BaseModel):
@@ -52,17 +53,53 @@ class TaskCreate(BaseModel):
     solution: str
     explanation: Optional[str] = None
     task_url: Optional[str] = None
-    image_url: Optional[str] = None
     image_data: Optional[str] = None
     image_type: Optional[str] = None
-class Task(TaskBase):
+    solution_file: Optional[str] = None
+    solution_filename: Optional[str] = None
+
+    @property
+    def title(self) -> str:
+        return f"Задание {self.taskNumber} ({self.site})"
+
+    @property
+    def description(self) -> str:
+        return self.solution
+
+    class Config:
+        from_attributes = True
+        json_schema_extra = {
+            "example": {
+                "taskNumber": "27",
+                "site": "kompege",
+                "text": "Текст задания",
+                "topic": "27",
+                "solution": "Решение задания",
+                "explanation": "Пояснение к решению",
+                "task_url": "https://example.com/task",
+                "image_data": None,
+                "image_type": None,
+                "solution_file": None,
+                "solution_filename": None
+            }
+        }
+
+class Task(BaseModel):
     id: int
-    created_at: datetime
-    explanation: Optional[str]
-    task_url: Optional[str]
-    image_url: Optional[str]
+    title: str
+    text: str
+    description: str
+    source: str
+    task_number: str
+    topic: str
+    solution: str
+    explanation: Optional[str] = None
+    task_url: Optional[str] = None
     image_data: Optional[str] = None
     image_type: Optional[str] = None
+    solution_file: Optional[str] = None
+    solution_filename: Optional[str] = None
+    created_at: datetime
 
     class Config:
         from_attributes = True

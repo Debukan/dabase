@@ -1,6 +1,7 @@
 import React from 'react';
-import { ChakraProvider } from '@chakra-ui/react';
+import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import theme from './theme';
 import HomePage from './pages/HomePage';
 import TasksPage from './pages/TasksPage';
 import TaskPage from './pages/TaskPage';
@@ -12,7 +13,8 @@ import Header from './components/Header';
 
 const App: React.FC = () => {
   return (
-    <ChakraProvider>
+    <ChakraProvider theme={theme}>
+      <ColorModeScript initialColorMode={theme.config.initialColorMode} />
       <Router>
         <Header />
         <Routes>

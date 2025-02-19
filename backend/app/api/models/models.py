@@ -19,8 +19,13 @@ class Task(Base):
     source = Column(Enum(SourceEnum), nullable=False)
     task_number = Column(String(50), nullable=False)
     topic = Column(String(255), nullable=False)
+    solution = Column(Text, nullable=False)
     explanation = Column(Text, nullable=True)
     task_url = Column(String(500), nullable=True)
+    image_data = Column(Text, nullable=True)
+    image_type = Column(String(50), nullable=True)
+    solution_file = Column(Text, nullable=True)
+    solution_filename = Column(String(255), nullable=True)
     created_at = Column(DateTime, default=datetime.now)
 
 class User(Base):

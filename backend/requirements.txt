@@ -6,3 +6,6 @@ alembic
 pydantic
 fastapi[all]
 python-dotenv
+pyjwt
+python-jose[cryptography]
+passlib[bcrypt]

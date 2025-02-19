@@ -15,6 +15,7 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+      - ./logs/frontend:/var/log/app
 
   backend:
     container_name: backend
@@ -40,6 +41,7 @@ services:
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./backend:/app
+      - ./logs/backend:/var/log/app
 
   db:
     image: postgres:latest
@@ -49,6 +51,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./logs/postgres:/var/log/postgresql
     networks:
       - app-network
     healthcheck:
@@ -64,4 +67,6 @@ networks:
 
 volumes:
   postgres_data:
+    driver: local
+  app_logs:
     driver: local

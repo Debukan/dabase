@@ -4,6 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 import os
 from dotenv import load_dotenv
 from pathlib import Path
+import logging
 
 env_path = Path(__file__).parents[4] / '.env'
 load_dotenv(env_path)
@@ -13,17 +14,21 @@ DB_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 DB_NAME = os.getenv("POSTGRES_DB")
 DB_HOST = "db"
 
-print(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST)
-
 DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
+logger = logging.getLogger(__name__)
+
 def get_db():
+    logger.debug("Creating new database session")
     db = SessionLocal()
     try:
         yield db
     finally:
+        logger.debug("Closing database session")
         db.close()
+
+logger.info(f"Initializing database connection to {DB_HOST}")

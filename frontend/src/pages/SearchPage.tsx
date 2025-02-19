@@ -35,8 +35,6 @@ const SearchPage: React.FC = () => {
     useEffect(() => {
         const filtered = tasks.filter(task => {
             const matchesSearch = searchTerm === '' ||
-                task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                task.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 task.task_number.toLowerCase().includes(searchTerm.toLowerCase());
 
             const matchesTopic = !selectedTopic || task.topic === selectedTopic;

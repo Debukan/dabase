@@ -5,6 +5,8 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 import logging
+import jwt
+from datetime import datetime, timedelta
 
 class LoginRequest(BaseModel):
     login: str
@@ -18,10 +20,34 @@ load_dotenv(env_path)
 ADMIN_LOGIN = os.getenv("ADMIN_LOGIN")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
-print(ADMIN_LOGIN, ADMIN_PASSWORD)
-
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('/var/log/app/backend.log'),
+        logging.StreamHandler()
+    ]
+)
 logger = logging.getLogger(__name__)
+
+JWT_SECRET = os.getenv("JWT_SECRET")
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRATION_MINUTES = 30
+
+def create_jwt_token(data: dict) -> str:
+    expiration = datetime.utcnow() + timedelta(minutes=JWT_EXPIRATION_MINUTES)
+    to_encode = data.copy()
+    to_encode.update({"exp": expiration})
+    return jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+def verify_jwt_token(token: str) -> dict:
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
 @router.post("/verify-admin")
 async def verify_admin(login_data: LoginRequest):
@@ -34,15 +60,22 @@ async def verify_admin(login_data: LoginRequest):
             content={"detail": "Server configuration error"}
         )
     
-    if login_data.login.strip() == ADMIN_LOGIN.strip() and login_data.password.strip() == ADMIN_PASSWORD.strip():
+    input_login = login_data.login.strip()
+    input_password = login_data.password.strip()
+    stored_login = ADMIN_LOGIN.strip()
+    stored_password = ADMIN_PASSWORD.strip()
+    
+    logger.debug(f"Comparing credentials: '{input_login}' with stored: '{stored_login}'")
+    
+    if input_login == stored_login and input_password == stored_password:
         logger.info("Successful admin login")
-        # Здесь можно добавить генерацию JWT токена, но пока отправляем простой токен
+        token = create_jwt_token({"sub": input_login, "role": "admin"})
         return JSONResponse(content={
             "valid": True,
-            "token": "admin-session-token"  # В реальном приложении здесь должен быть JWT токен
+            "token": token
         })
-        
-    logger.warning("Failed login attempt")
+    
+    logger.warning(f"Failed login attempt. Expected: {stored_login}, Got: {input_login}")
     return JSONResponse(
         status_code=401,
         content={"detail": "Incorrect login or password"}
@@ -57,7 +90,6 @@ async def verify_token(authorization: str = Header(None)):
         )
     
     try:
-        # Проверяем формат Bearer токена
         scheme, token = authorization.split()
         if scheme.lower() != 'bearer':
             return JSONResponse(
@@ -65,14 +97,8 @@ async def verify_token(authorization: str = Header(None)):
                 content={"detail": "Invalid authentication scheme"}
             )
             
-        # Проверяем сам токен
-        if token == "admin-session-token":  # В реальном приложении здесь должна быть проверка JWT
-            return JSONResponse(content={"valid": True})
-        else:
-            return JSONResponse(
-                status_code=401,
-                content={"detail": "Invalid token"}
-            )
+        payload = verify_jwt_token(token)
+        return JSONResponse(content={"valid": True, "user": payload})
     except Exception as e:
         logger.error(f"Token verification error: {str(e)}")
         return JSONResponse(

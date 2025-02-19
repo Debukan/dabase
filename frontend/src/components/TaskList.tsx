@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { VStack, Box, Heading, Text, Badge } from '@chakra-ui/react';
+import { VStack, Box, Heading, Text, Badge, useColorModeValue } from '@chakra-ui/react';
 import { Task } from '../types';
 
 interface TaskListProps {
@@ -8,6 +8,9 @@ interface TaskListProps {
 }
 
 const TaskList: React.FC<TaskListProps> = ({ tasks }) => {
+    const hoverBg = useColorModeValue('gray.50', 'gray.700');
+    const borderColor = useColorModeValue('gray.200', 'gray.600');
+
     return (
         <VStack spacing={4} align="stretch">
             {tasks.map((task) => (
@@ -17,8 +20,13 @@ const TaskList: React.FC<TaskListProps> = ({ tasks }) => {
                     to={`/task/${task.id}`}
                     p={4}
                     borderWidth="1px"
+                    borderColor={borderColor}
                     borderRadius="lg"
-                    _hover={{ bg: 'gray.50' }}
+                    _hover={{ 
+                        bg: hoverBg,
+                        transform: 'translateY(-2px)',
+                        transition: 'all 0.2s ease-in-out'
+                    }}
                 >
                     <Heading size="md">{task.title}</Heading>
                     <Badge colorScheme="blue" mt={2}>{task.topic}</Badge>

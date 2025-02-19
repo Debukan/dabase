@@ -1,8 +1,10 @@
 import React from 'react';
-import { Box, Flex, Button, Heading, HStack, useToast } from '@chakra-ui/react';
+import { Box, Flex, Button, Heading, HStack, useColorMode, IconButton, useToast } from '@chakra-ui/react';
+import { MoonIcon, SunIcon } from '@chakra-ui/icons';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
 const Header: React.FC = () => {
+  const { colorMode, toggleColorMode } = useColorMode();
   const navigate = useNavigate();
   const toast = useToast();
   const token = localStorage.getItem('token');
@@ -19,16 +21,20 @@ const Header: React.FC = () => {
   };
 
   return (
-    <Box bg="gray.100" px={4} py={2}>
+    <Box bg={colorMode === 'light' ? 'gray.100' : 'gray.900'} px={4} py={2}>
       <Flex justify="space-between" align="center" maxW="container.xl" mx="auto">
         <Heading size="md" as={RouterLink} to="/">
           DaBase
         </Heading>
         
         <HStack spacing={4}>
-          <Button as={RouterLink} to="/search" colorScheme="teal" variant="ghost">
-            Поиск
-          </Button>
+          <IconButton
+            aria-label="Toggle color mode"
+            icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
+            onClick={toggleColorMode}
+            size="md"
+            variant="ghost"
+          />
           <Button as={RouterLink} to="/tasks/kompege" colorScheme="teal" variant="ghost">
             КЕГЭ
           </Button>

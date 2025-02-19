@@ -12,6 +12,7 @@ import {
   useToast,
   useColorModeValue,
   Image,
+  Text,
 } from '@chakra-ui/react';
 import { AVAILABLE_TOPICS } from '../constants/topics';
 
@@ -20,26 +21,23 @@ const API_BASE_URL = 'http://localhost:8000';
 const AdminPanel: React.FC = () => {
   const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const solutionFileInputRef = useRef<HTMLInputElement>(null);
+  const [solutionFileName, setSolutionFileName] = useState<string>('');
   const [formData, setFormData] = useState({
     taskNumber: '',
     site: 'kompege',
     text: '',
-    topic: '',
+    topic: '1',
     solution: '',
     explanation: '',
     task_url: '',
-    image_url: '',
     image_data: '',
-    image_type: ''
+    image_type: '',
+    solution_file: '',
+    solution_filename: ''
   });
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-
-  const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const url = e.target.value;
-    setFormData({...formData, image_url: url});
-    setPreviewImage(url);
-  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -58,27 +56,66 @@ const AdminPanel: React.FC = () => {
     }
   };
 
+  const handleSolutionFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 1024 * 1024 * 5) { // 5MB limit
+        toast({
+          title: 'Ошибка',
+          description: 'Файл слишком большой. Максимальный размер: 5MB',
+          status: 'error',
+          duration: 3000,
+        });
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          setFormData({
+            ...formData,
+            solution_file: reader.result,
+            solution_filename: file.name
+          });
+          setSolutionFileName(file.name);
+        }
+      };
+      reader.onerror = () => {
+        toast({
+          title: 'Ошибка',
+          description: 'Не удалось прочитать файл',
+          status: 'error',
+          duration: 3000,
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const requestBody = {
+        taskNumber: formData.taskNumber,
+        site: formData.site,
+        text: formData.text,
+        topic: formData.topic,
+        solution: formData.solution,
+        explanation: formData.explanation || null,
+        task_url: formData.task_url || null,
+        image_data: formData.image_data || null,
+        image_type: formData.image_type || null,
+        solution_file: formData.solution_file || null,
+        solution_filename: formData.solution_filename || null
+      };
+
       const response = await fetch(`${API_BASE_URL}/api/tasks/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
-        body: JSON.stringify({
-          taskNumber: formData.taskNumber,
-          site: formData.site,
-          text: formData.text,
-          topic: formData.topic,
-          solution: formData.solution,
-          explanation: formData.explanation || null,
-          task_url: formData.task_url || null,
-          image_url: formData.image_url || null,
-          image_data: formData.image_data || null,
-          image_type: formData.image_type || null
-        }),
+        body: JSON.stringify(requestBody),
         credentials: 'include',
       });
 
@@ -98,16 +135,19 @@ const AdminPanel: React.FC = () => {
         taskNumber: '',
         site: 'kompege',
         text: '',
-        topic: '',
+        topic: '1',
         solution: '',
         explanation: '',
         task_url: '',
-        image_url: '',
         image_data: '',
-        image_type: ''
+        image_type: '',
+        solution_file: '',
+        solution_filename: ''
       });
       setPreviewImage(null);
+      setSolutionFileName('');
     } catch (error) {
+      console.error('Error submitting form:', error);
       toast({
         title: 'Ошибка',
         description: error instanceof Error ? error.message : 'Ошибка сервера',
@@ -193,15 +233,6 @@ const AdminPanel: React.FC = () => {
           </FormControl>
 
           <FormControl>
-            <FormLabel>URL изображения</FormLabel>
-            <Input
-              value={formData.image_url}
-              onChange={handleImageUrlChange}
-              placeholder="https://..."
-            />
-          </FormControl>
-
-          <FormControl>
             <FormLabel>Изображение</FormLabel>
             <Input
               type="file"
@@ -221,6 +252,21 @@ const AdminPanel: React.FC = () => {
               />
             </Box>
           )}
+
+          <FormControl>
+            <FormLabel>Файл решения</FormLabel>
+            <Input
+              type="file"
+              onChange={handleSolutionFileUpload}
+              ref={solutionFileInputRef}
+              accept=".py,.cpp,.txt"
+            />
+            {solutionFileName && (
+              <Text mt={2} fontSize="sm" color="gray.600">
+                Выбран файл: {solutionFileName}
+              </Text>
+            )}
+          </FormControl>
 
           <Button type="submit" colorScheme="blue" width="full">
             Добавить задание
