@@ -18,7 +18,7 @@ services:
     build:
       context: ./frontend
     ports:
-      - "3000"  # Убираем внешний маппинг порта
+      - "3000"
     depends_on:
       backend:
         condition: service_healthy
@@ -36,7 +36,7 @@ services:
     build:
       context: ./backend
     ports:
-      - "8000"  # Убираем внешний маппинг порта
+      - "8000"
     depends_on:
       db:
         condition: service_healthy
