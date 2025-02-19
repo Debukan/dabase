@@ -1,10 +1,24 @@
 services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./static:/static
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - app-network
+
   frontend:
     container_name: frontend
     build:
       context: ./frontend
     ports:
-      - "3000:3000"
+      - "3000"  # Убираем внешний маппинг порта
     depends_on:
       backend:
         condition: service_healthy
@@ -22,7 +36,7 @@ services:
     build:
       context: ./backend
     ports:
-      - "8000:8000"
+      - "8000"  # Убираем внешний маппинг порта
     depends_on:
       db:
         condition: service_healthy
@@ -52,6 +66,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./logs/postgres:/var/log/postgresql
+      - /var/backups/postgres:/var/backups/postgres
     networks:
       - app-network
     healthcheck:
