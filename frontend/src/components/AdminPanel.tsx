@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react';
 import { AVAILABLE_TOPICS } from '../constants/topics';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = '';  // Используем относительные пути
 
 const AdminPanel: React.FC = () => {
   const toast = useToast();
@@ -109,7 +109,7 @@ const AdminPanel: React.FC = () => {
         solution_filename: formData.solution_filename || null
       };
 
-      const response = await fetch(`${API_BASE_URL}/api/tasks/`, {
+      const response = await fetch(`/api/tasks/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

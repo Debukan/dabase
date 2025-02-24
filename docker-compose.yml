@@ -5,45 +5,59 @@ services:
       - "80:80"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./static:/static
       - ./logs/nginx:/var/log/nginx
+      - ./frontend/build:/usr/share/nginx/html
     depends_on:
       - frontend
       - backend
+    command: >
+      /bin/sh -c "chmod -R 755 /usr/share/nginx/html && nginx -g 'daemon off;'"
     networks:
-      - app-network
+      app-network:
+        aliases:
+          - nginx
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   frontend:
     container_name: frontend
     build:
       context: ./frontend
+      dockerfile: Dockerfile.dev
     ports:
-      - "3000"
+      - "3000:3000"
     depends_on:
       backend:
         condition: service_healthy
     environment:
       - REACT_APP_API_URL=http://localhost:8000
+      - CHOKIDAR_USEPOLLING=true
+      - WDS_SOCKET_PORT=0
     networks:
       - app-network
     volumes:
-      - ./frontend:/app
       - /app/node_modules
       - ./logs/frontend:/var/log/app
+      - ./frontend/build:/frontend/build
+    command: sh -c "npm run build && cp -r build/* /frontend/build && npm start"
 
   backend:
     container_name: backend
     build:
       context: ./backend
     ports:
-      - "8000"
+      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
     env_file:
       - .env
     environment:
-      - CORS_ORIGINS=http://localhost:3000,http://frontend:3000,http://127.0.0.1:3000
+      - CORS_ORIGINS=http://localhost:3000,http://frontend:3000,http://nginx
     networks:
       - app-network
     healthcheck:

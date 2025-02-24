@@ -32,8 +32,11 @@ async def read_task(task_id: int, db: Session = Depends(get_db)):
 
 @router.post("/tasks/", response_model=Task)
 async def create_task(task: TaskCreate, db: Session = Depends(get_db)):
-    logger.info(f"Creating new task: {task.title}")
+    logger.info(f"Received task creation request: {task}")
     try:
+        # Добавим детальное логирование
+        logger.debug(f"Processing task data: {task.dict()}")
+        
         solution_file = None
         if task.solution_file and ',' in task.solution_file:
             solution_file = task.solution_file.split(',')[1]
