@@ -25,12 +25,9 @@ async def startup_event():
     init_db()
 
 origins = [
-    "http://localhost",
-    "http://localhost:3000",
-    "http://localhost:80",
-    "http://127.0.0.1:3000",
-    "http://frontend:3000",
-    "http://nginx"
+    "https:/dababase.ru",
+    "https://www.dababase.ru",
+    "http://147.45.159.81"
 ]
 
 app.add_middleware(
