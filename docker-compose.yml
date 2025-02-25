@@ -8,6 +8,7 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./logs/nginx:/var/log/nginx
       - ./frontend/build:/usr/share/nginx/html
+      - ./certs:/etc/nginx/certs
     depends_on:
       - frontend
       - backend
