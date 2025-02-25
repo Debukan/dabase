@@ -14,7 +14,7 @@ const TasksPage: React.FC = () => {
     useEffect(() => {
         const fetchTasks = async () => {
             try {
-                const response = await fetch(`http://localhost:8000/api/tasks/?source=${site}`);
+                const response = await fetch(`https://dababase.ru/api/tasks/?source=${site}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch tasks');
                 }

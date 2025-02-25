@@ -22,7 +22,7 @@ const TaskPage: React.FC = () => {
     useEffect(() => {
         const fetchTask = async () => {
             try {
-                const response = await fetch(`http://localhost:8000/api/tasks/${taskId}`);
+                const response = await fetch(`https://dababase.ru/api/tasks/${taskId}`);
                 if (!response.ok) {
                     throw new Error('Задание не найдено');
                 }
@@ -43,7 +43,7 @@ const TaskPage: React.FC = () => {
             const token = localStorage.getItem('token');
             if (token) {
                 try {
-                    const response = await fetch('http://localhost:8000/api/verify-token', {
+                    const response = await fetch('https://dababase.ru/api/verify-token', {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     setIsAdmin(response.ok);
@@ -63,7 +63,7 @@ const TaskPage: React.FC = () => {
     const handleSave = async () => {
         if (!editedTask) return;
         try {
-            const response = await fetch(`http://localhost:8000/api/tasks/${taskId}`, {
+            const response = await fetch(`https://dababase.ru/api/tasks/${taskId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -131,7 +131,7 @@ const TaskPage: React.FC = () => {
 
     const handleDelete = async () => {
         try {
-            const response = await fetch(`http://localhost:8000/api/tasks/${taskId}`, {
+            const response = await fetch(`https://dababase.ru/api/tasks/${taskId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
