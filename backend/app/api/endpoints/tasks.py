@@ -34,7 +34,6 @@ async def read_task(task_id: int, db: Session = Depends(get_db)):
 async def create_task(task: TaskCreate, db: Session = Depends(get_db)):
     logger.info(f"Received task creation request: {task}")
     try:
-        # Добавим детальное логирование
         logger.debug(f"Processing task data: {task.dict()}")
         
         solution_file = None
